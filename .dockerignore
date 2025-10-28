@@ -1,0 +1,7 @@
+*.db*
+*.DS_Store
+*.idea
+*.log
+bin/*
+build/*
+cmd/tmp

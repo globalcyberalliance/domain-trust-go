@@ -1,0 +1,60 @@
+name: Lint
+on:
+  pull_request:
+    paths:
+      - "**/*.go"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+      # Allow lint annotations in the PR.
+      pull-requests: read
+
+    env:
+      GOPRIVATE: github.com/globalcyberalliance
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Configure git for private modules
+        env:
+          TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+        run: git config --global url."https://user:${TOKEN}@github.com".insteadOf "https://github.com"
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '^1.25.2' # The Go version to download (if necessary) and use.
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run golangci-lint (no fail)
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.5.0
+          args: --fix --issues-exit-code=0 --output.text.path ignored.txt --timeout=5m
+
+      - name: Clean up report file
+        run: rm ignored.txt
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: Apply linter fixes and formatting
+          commit_user_name: GCA Bot
+          commit_user_email: 94362713+gca-bot@users.noreply.github.com
+          commit_author: GCA Bot <94362713+gca-bot@users.noreply.github.com>
+
+      - name: Run golangci-lint (on fail)
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.5.0
+          args: --timeout=5m
