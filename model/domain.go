@@ -58,15 +58,16 @@ type (
 		RegistrationDateAfter  time.Time `json:"registrationDateAfter,omitzero" query:"registrationDateAfter"`
 		RegistrationDateBefore time.Time `json:"registrationDateBefore,omitzero" query:"registrationDateBefore"`
 
-		ProviderName   string `json:"providerName,omitempty" query:"providerName"`
-		ProviderRating string `json:"providerRating,omitempty" query:"providerRating"`
-		ProviderRole   string `json:"providerRole,omitempty" query:"providerRole"`
+		ProviderName        string `json:"providerName,omitempty" query:"providerName"`
+		ProviderRating      string `json:"providerRating,omitempty" query:"providerRating"`
+		ProviderRatingAbove string `json:"providerRatingAbove,omitempty" query:"providerRatingAbove"`
+		ProviderRole        string `json:"providerRole,omitempty" query:"providerRole"`
 
 		AbuseType            string    `json:"abuseType,omitempty" query:"abuseType"`
 		Activity             string    `json:"activity,omitempty" query:"activity"`
 		Classification       string    `json:"classification,omitempty" query:"classification"`
-		DateIdentifiedAfter  time.Time `json:"dateIdentifiedAfter,omitzero" yaml:"dateIdentifiedAfter,omitzero" query:"dateIdentifiedAfter"`
-		DateIdentifiedBefore time.Time `json:"dateIdentifiedBefore,omitzero" yaml:"dateIdentifiedBefore,omitzero" query:"dateIdentifiedBefore"`
+		DateIdentifiedAfter  time.Time `json:"dateIdentifiedAfter,omitzero" query:"dateIdentifiedAfter"`
+		DateIdentifiedBefore time.Time `json:"dateIdentifiedBefore,omitzero"doc:"The query:"dateIdentifiedBefore"`
 		OnlyBlocked          bool      `json:"onlyBlocked,omitempty" query:"onlyBlocked"`
 		OnlyUnblocked        bool      `json:"onlyUnblocked,omitempty" query:"onlyUnblocked"`
 		ReportType           string    `json:"reportType,omitempty" query:"reportType"`
@@ -101,9 +102,9 @@ type (
 		Activity       string    `json:"activity" yaml:"activity"`
 		Classification string    `json:"classification" yaml:"classification"`
 		Comments       string    `json:"comments,omitempty" yaml:"comments,omitempty"`
-		DateIdentified time.Time `json:"dateIdentified,omitzero" yaml:"dateIdentified,omitzero"`
+		DateIdentified time.Time `json:"dateIdentified,omitzero" yaml:"dateIdentified,omitempty"`
 		IsBlocked      bool      `json:"isBlocked" yaml:"isBlocked"`
-		ReportType     string    `json:"reportType" yaml:"reportType"`
+		ReportType     string    `json:"reportType,omitempty" yaml:"reportType,omitempty"`
 		Source         string    `json:"source" yaml:"source"`
 		SourceName     string    `json:"sourceName,omitempty" yaml:"sourceName,omitempty"`
 		URLs           []string  `json:"urls,omitzero" yaml:"urls,omitempty"`

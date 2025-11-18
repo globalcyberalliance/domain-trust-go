@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/globalcyberalliance/domain-trust-go/model"
+	"github.com/globalcyberalliance/domain-trust-go/v2/model"
 )
 
 func (c *Client) CreateDomains(ctx context.Context, domains ...*model.DomainSubmission) ([]*model.DomainError, error) {

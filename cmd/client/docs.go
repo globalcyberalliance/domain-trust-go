@@ -4,7 +4,7 @@ import (
 	"os/exec"
 	"runtime"
 
-	dt "github.com/globalcyberalliance/domain-trust-go"
+	dt "github.com/globalcyberalliance/domain-trust-go/v2"
 	"github.com/spf13/cobra"
 )
 

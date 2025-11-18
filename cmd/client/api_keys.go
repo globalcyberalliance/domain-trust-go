@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/globalcyberalliance/domain-trust-go/model"
+	"github.com/globalcyberalliance/domain-trust-go/v2/model"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"

@@ -38,8 +38,8 @@ import (
 	"log"
 	"time"
 
-	dt "github.com/globalcyberalliance/domain-trust-go"
-	dtm "github.com/globalcyberalliance/domain-trust-go/model"
+	dt "github.com/globalcyberalliance/domain-trust-go/v2"
+	dtm "github.com/globalcyberalliance/domain-trust-go/v2/model"
 )
 
 func main() {

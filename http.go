@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/fxamacker/cbor/v2"
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/klauspost/compress/zstd"
 	"github.com/moul/http2curl"
 	"github.com/spf13/cast"
@@ -95,7 +96,7 @@ func (c *Client) makeRequest(ctx context.Context, endpoint string, method string
 		requestBody = compressedBody.Bytes()
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, endpointURL, bytes.NewBuffer(requestBody))
+	req, err := retryablehttp.NewRequestWithContext(ctx, method, endpointURL, bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, fmt.Errorf("new request: %w", err)
 	}
@@ -108,10 +109,10 @@ func (c *Client) makeRequest(ctx context.Context, endpoint string, method string
 	req.Header.Add("Accept-Encoding", c.encodingType)
 	req.Header.Add("Content-Encoding", c.encodingType)
 	req.Header.Add("Content-Type", c.contentType)
-	req.Header.Add("DT-Client-Version", Version)
+	req.Header.Add("Dt-Client-Version", Version)
 
 	if c.debug {
-		curl, cErr := http2curl.GetCurlCommand(req)
+		curl, cErr := http2curl.GetCurlCommand(req.Request)
 		if cErr == nil {
 			fmt.Println(curl.String())
 		}

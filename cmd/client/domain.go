@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/globalcyberalliance/domain-trust-go/model"
+	"github.com/globalcyberalliance/domain-trust-go/v2/model"
 	"github.com/spf13/cobra"
 )
 
@@ -103,7 +103,8 @@ func newDomainsFindCMD() *cobra.Command {
 
 	// Organization details.
 	cmd.Flags().String("providerName", "", "The name of the provider organization")
-	cmd.Flags().String("providerRating", "", "The rating of the provider organization (low-confidence|med-confidence|high-confidence|predictive|trial)")
+	cmd.Flags().String("providerRating", "", "The rating of the provider organization (trial|predictive|low-confidence|med-confidence|high-confidence)")
+	cmd.Flags().String("providerRatingAbove", "", "Filter for providers with a rating above the given rating (trial|predictive|low-confidence|med-confidence|high-confidence)")
 	cmd.Flags().String("providerRole", "", "The role/type of the provider organization (registrar|registry|reseller|other|ICANN)")
 
 	// Submission details.

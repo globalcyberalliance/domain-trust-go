@@ -3,6 +3,10 @@ on:
   release:
     types: [ released ]
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   binary:
     name: Build and Release Binaries
@@ -37,8 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image_id: ${{ steps.setenv.outputs.image_id }}
-      cachetags: ${{ steps.setenv.outputs.cachetags }}
+      cache_tags: ${{ steps.setenv.outputs.cache_tags }}
       tags: ${{ steps.setenv.outputs.tags }}
+      tags_latest: ${{ steps.setenv.outputs.tags_latest }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -46,15 +51,17 @@ jobs:
       - id: setenv
         run: |
           IMAGE_ID=${GITHUB_REPOSITORY,,}
-          TAG_NAME=${GITHUB_REF_NAME:-latest}
+          TAG_NAME="${{ github.ref_name }}"
 
           # Support both specific version (from release tag) and latest
           TAGS="ghcr.io/${IMAGE_ID}:${TAG_NAME}"
-          CACHETAGS="ghcr.io/${IMAGE_ID}:buildcache"
+          TAGS_LATEST="ghcr.io/${IMAGE_ID}:latest"
+          CACHE_TAGS="ghcr.io/${IMAGE_ID}:buildcache"
 
           echo "image_id=$IMAGE_ID" >> $GITHUB_OUTPUT
           echo "tags=$TAGS" >> $GITHUB_OUTPUT
-          echo "cachetags=$CACHETAGS" >> $GITHUB_OUTPUT
+          echo "tags_latest=$TAGS_LATEST" >> $GITHUB_OUTPUT
+          echo "cache_tags=$CACHE_TAGS" >> $GITHUB_OUTPUT
 
   build-amd64:
     name: Build amd64 image
@@ -85,10 +92,10 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: ghcr.io/${{ needs.setup.outputs.image_id }}:amd64
-          cache-from: type=registry,ref=${{ needs.setup.outputs.cachetags }}
-          cache-to: type=registry,ref=${{ needs.setup.outputs.cachetags }},mode=max
+          cache-from: type=registry,ref=${{ needs.setup.outputs.cache_tags }}
+          cache-to: type=registry,ref=${{ needs.setup.outputs.cache_tags }},mode=max
           build-args: |
-            GITHUB_TOKEN=${{ secrets.GH_ACCESS_TOKEN }}
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
   build-arm64:
     name: Build arm64 image
@@ -119,10 +126,10 @@ jobs:
           push: true
           platforms: linux/arm64
           tags: ghcr.io/${{ needs.setup.outputs.image_id }}:arm64
-          cache-from: type=registry,ref=${{ needs.setup.outputs.cachetags }}
-          cache-to: type=registry,ref=${{ needs.setup.outputs.cachetags }},mode=max
+          cache-from: type=registry,ref=${{ needs.setup.outputs.cache_tags }}
+          cache-to: type=registry,ref=${{ needs.setup.outputs.cache_tags }},mode=max
           build-args: |
-            GITHUB_TOKEN=${{ secrets.GH_ACCESS_TOKEN }}
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
   merge:
     name: Merge multi-arch image
@@ -142,11 +149,13 @@ jobs:
         run: |
           echo "Image ID: ${{ needs.setup.outputs.image_id }}"
           echo "Tags: ${{ needs.setup.outputs.tags }}"
+          echo "Tags Latest: ${{ needs.setup.outputs.tags_latest }}"
 
       - name: Create and push multi-arch manifest
         run: |
           docker buildx imagetools create \
             -t ${{ needs.setup.outputs.tags }} \
+            -t ${{ needs.setup.outputs.tags_latest }} \
             ghcr.io/${{ needs.setup.outputs.image_id }}:amd64 \
             ghcr.io/${{ needs.setup.outputs.image_id }}:arm64
 

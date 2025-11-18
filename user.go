@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/globalcyberalliance/domain-trust-go/model"
+	"github.com/globalcyberalliance/domain-trust-go/v2/model"
 )
 
 func (c *Client) DeleteUser(ctx context.Context, userID string) error {

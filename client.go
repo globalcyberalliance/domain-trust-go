@@ -7,19 +7,20 @@ import (
 	"time"
 
 	"github.com/fxamacker/cbor/v2"
+	"github.com/hashicorp/go-retryablehttp"
 )
 
 const (
 	DefaultTimeout = 30 * time.Second
 	DocsURL        = "https://domain-trust.docs.globalcyberalliance.org"
 	EndpointURL    = "https://domain-trust.globalcyberalliance.org/api"
-	Version        = "2.0.0"
+	Version        = "2.0.44"
 )
 
 // Client represents the Domain Trust API client.
 type Client struct {
 	apiKey       string
-	client       *http.Client
+	client       *retryablehttp.Client
 	contentType  string
 	debug        bool
 	encodingType string
@@ -27,9 +28,13 @@ type Client struct {
 
 // New initializes a new Domain Trust API client using the provided API key and options.
 func New(apiKey string, opts ...Option) *Client {
+	httpClient := retryablehttp.NewClient()
+	httpClient.Logger = nil
+	httpClient.HTTPClient.Timeout = DefaultTimeout
+
 	c := &Client{
 		apiKey:       apiKey,
-		client:       &http.Client{Timeout: DefaultTimeout},
+		client:       httpClient,
 		contentType:  ContentTypeCBOR,
 		debug:        false,
 		encodingType: EncodingTypeZSTD,
@@ -49,7 +54,7 @@ func (c *Client) SetAPIKey(apiKey string) {
 
 // SetTimeout updates the client timeout.
 func (c *Client) SetTimeout(timeout time.Duration) {
-	c.client.Timeout = timeout
+	c.client.HTTPClient.Timeout = timeout
 }
 
 // Option is a function that applies a configuration option to a Client.
@@ -62,7 +67,7 @@ func WithClient(client *http.Client) Option {
 			client = &http.Client{Timeout: DefaultTimeout}
 		}
 
-		c.client = client
+		c.client.HTTPClient = client
 	}
 }
 
@@ -99,15 +104,14 @@ func WithEncodingType(encodingType string) Option {
 func WithTimeout(timeout time.Duration) Option {
 	return func(c *Client) {
 		if c.client == nil {
-			c.client = &http.Client{}
+			c.client = retryablehttp.NewClient()
 		}
 
-		c.client.Timeout = timeout
+		c.client.HTTPClient.Timeout = timeout
 	}
 }
 
 func (c *Client) marshal(v any) ([]byte, error) {
-
 	switch c.contentType {
 	case ContentTypeCBOR:
 		return cbor.Marshal(v)

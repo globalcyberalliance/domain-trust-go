@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/fxamacker/cbor/v2"
-	dt "github.com/globalcyberalliance/domain-trust-go"
-	"github.com/globalcyberalliance/domain-trust-go/model"
+	dt "github.com/globalcyberalliance/domain-trust-go/v2"
+	"github.com/globalcyberalliance/domain-trust-go/v2/model"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"

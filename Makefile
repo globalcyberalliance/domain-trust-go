@@ -1,4 +1,4 @@
-PROJECT			 := github.com/globalcyberalliance/domain-trust-go
+PROJECT			 := github.com/globalcyberalliance/domain-trust-go/v2
 GO				 := $(shell which go 2>/dev/null)
 GOFIELDALIGNMENT := $(shell which betteralign 2>/dev/null)
 GOFUMPT			 := $(shell which gofumpt 2>/dev/null)
