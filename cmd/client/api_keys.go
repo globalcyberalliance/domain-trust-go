@@ -98,7 +98,7 @@ func newAPIKeysFindCMD() *cobra.Command {
 			var filter model.APIKeyFilter
 
 			if err := unmarshalFlags(cmd, &filter); err != nil {
-				panic(err)
+				log.Fatal().Err(err).Msg("Failed to unmarshal flags")
 			}
 
 			apiKeys, err := apiClient.FindAPIKeys(cmd.Context(), &filter)

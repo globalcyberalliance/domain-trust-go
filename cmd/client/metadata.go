@@ -16,6 +16,7 @@ func unmarshalFlags(cmd *cobra.Command, out interface{}) error {
 	if v.Kind() != reflect.Ptr || v.IsNil() {
 		return errors.New("out must be a non-nil pointer to a struct")
 	}
+
 	v = v.Elem()
 	if v.Kind() != reflect.Struct {
 		return errors.New("out must point to a struct")
@@ -34,6 +35,7 @@ func unmarshalFlags(cmd *cobra.Command, out interface{}) error {
 				if ft.Kind() == reflect.Ptr {
 					ft = ft.Elem()
 				}
+
 				if ft.Kind() == reflect.Struct {
 					collect(ft, append(path, i))
 					continue

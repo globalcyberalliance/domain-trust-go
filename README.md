@@ -195,6 +195,23 @@ c := dt.New("YOUR_API_KEY",
 
 ---
 
+## CLI Tool
+
+Alongside the SDK, there are precompiled binaries that you can use to interact with the Domain Trust platform too. For
+example, here's how you can retrieve all domains matching your filter parameters, and write them directly to disk:
+
+```shell
+dt-client domains find --activity=active --classification=definitely-malicious --all -w -f json
+2025-11-18T22:07:44Z INF Starting domain retrieval...
+2025-11-18T22:07:54Z INF Tracking domains domainsFound=50000
+2025-11-18T22:08:04Z INF Tracking domains domainsFound=120000
+2025-11-18T22:08:14Z INF Tracking domains domainsFound=270000
+...
+2025-11-18T22:22:23Z INF Output written to 1763504543.json
+```
+
+You can optionally set `--prettyLog=false` to have the log messages output as JSON.
+
 ## API Documentation
 
 Comprehensive endpoint documentation is available here: *

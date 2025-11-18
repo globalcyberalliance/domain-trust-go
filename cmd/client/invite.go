@@ -97,7 +97,7 @@ func newInvitesFindCMD() *cobra.Command {
 			var filter model.InviteFilter
 
 			if err := unmarshalFlags(cmd, &filter); err != nil {
-				panic(err)
+				log.Fatal().Err(err).Msg("Failed to unmarshal flags")
 			}
 
 			invites, err := apiClient.FindInvites(cmd.Context(), &filter)

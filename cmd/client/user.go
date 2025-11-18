@@ -71,7 +71,7 @@ func newUsersFindCMD() *cobra.Command {
 			var filter model.UserFilter
 
 			if err := unmarshalFlags(cmd, &filter); err != nil {
-				panic(err)
+				log.Fatal().Err(err).Msg("Failed to unmarshal flags")
 			}
 
 			users, err := apiClient.FindUsers(cmd.Context(), &filter)

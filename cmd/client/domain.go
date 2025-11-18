@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/globalcyberalliance/domain-trust-go/v2/model"
 	"github.com/spf13/cobra"
@@ -46,14 +47,14 @@ func newDomainsCreateCMD() *cobra.Command {
 				log.Fatal().Msg("No domain rows found in CSV")
 			}
 
-			errors, err := apiClient.CreateDomains(cmd.Context(), domains...)
+			errs, err := apiClient.CreateDomains(cmd.Context(), domains...)
 			if err != nil {
 				log.Fatal().Err(err).Msg("Failed to create domains")
 			}
 
-			if len(errors) > 0 {
+			if len(errs) > 0 {
 				log.Info().Msg("Domains created with errors")
-				for _, domain := range errors {
+				for _, domain := range errs {
 					printToConsole(domain)
 				}
 
@@ -75,12 +76,66 @@ func newDomainsFindCMD() *cobra.Command {
 			var filter model.DomainFilter
 
 			if err := unmarshalFlags(cmd, &filter); err != nil {
-				panic(err)
+				log.Fatal().Err(err).Msg("Failed to unmarshal flags")
 			}
 
-			domains, err := apiClient.FindDomains(cmd.Context(), &filter)
+			findAll, err := cmd.Flags().GetBool("all")
 			if err != nil {
-				log.Fatal().Err(err).Msg("Failed to find domains")
+				log.Fatal().Err(err).Msg("Failed to get flag 'all'")
+			}
+
+			var domains []*model.Domain
+
+			// If findAll is false, do a simple lookup and return the results.
+			if !findAll {
+				domains, err = apiClient.FindDomains(cmd.Context(), &filter)
+				if err != nil {
+					log.Fatal().Err(err).Msg("Failed to find domains")
+				}
+
+				if len(domains) == 0 {
+					log.Warn().Msg("No domains found")
+					return
+				}
+
+				printToConsole(domains)
+				return
+			}
+
+			go func() {
+				ticker := time.NewTicker(10 * time.Second)
+				defer ticker.Stop()
+
+				for {
+					select {
+					case <-cmd.Context().Done():
+						return
+					case <-ticker.C:
+						log.Info().
+							Int("domainsFound", len(domains)).
+							Msg("Tracking domains")
+					}
+				}
+			}()
+
+			log.Info().Msg("Starting domain retrieval...")
+
+			// Paginate over results.
+			filter.MetadataFilter.Limit = model.MaxMetadataLimit
+
+			domainIterator, err := apiClient.FindDomainsPaged(cmd.Context(), &filter)
+			if err != nil {
+				log.Fatal().Err(err).Msg("Failed to find all domains")
+			}
+
+			domains = make([]*model.Domain, 0, model.MaxMetadataLimit)
+
+			for domainIterator.Next() {
+				domains = append(domains, domainIterator.Value())
+			}
+
+			if domainIterator.Err() != nil {
+				log.Fatal().Err(domainIterator.Err()).Msg("Failed to page domains")
 			}
 
 			if len(domains) == 0 {
@@ -88,10 +143,13 @@ func newDomainsFindCMD() *cobra.Command {
 				return
 			}
 
+			log.Info().Int("domainsFound", len(domains)).Msg("Successfully retrieved domains")
+
 			printToConsole(domains)
 		},
 	}
 
+	cmd.Flags().Bool("all", false, "Automatically paginate through the results")
 	cmd.Flags().String("organizationID", "", "A unique identifier for the organization")
 
 	// Domain details.

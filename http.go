@@ -31,6 +31,7 @@ const (
 
 type (
 	GenericResponse struct {
+		Title  string `json:"title"`
 		Status int    `json:"status"`
 		Detail string `json:"detail"`
 		Errors []struct {
@@ -41,6 +42,10 @@ type (
 
 func (r GenericResponse) ToErrorString() string {
 	var sb strings.Builder
+
+	if r.Detail == "" {
+		r.Detail = r.Title
+	}
 
 	sb.WriteString(fmt.Sprintf("%s (HTTP %d)", r.Detail, r.Status))
 
@@ -146,10 +151,12 @@ func (c *Client) makeRequest(ctx context.Context, endpoint string, method string
 			resp := GenericResponse{}
 
 			switch res.Header.Get("Content-Type") {
-			case ContentTypeCBOR:
+			case ContentTypeCBOR, "application/problem+cbor":
 				err = cbor.Unmarshal(resBody, &resp)
-			case ContentTypeJSON:
+			case ContentTypeJSON, "application/problem+json":
 				err = json.Unmarshal(resBody, &resp)
+			default:
+				err = errors.New("unknown content type")
 			}
 
 			if err == nil {

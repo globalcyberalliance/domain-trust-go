@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -21,14 +22,14 @@ const (
 )
 
 var (
-	apiClient          *dt.Client
-	cfg                *Config
-	log                = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).With().Timestamp().Logger().Level(zerolog.InfoLevel)
-	debug, writeToFile bool
-	timeout            time.Duration
-	format             string
-	limit, offset      uint64
-	slash              = string(os.PathSeparator)
+	apiClient                     *dt.Client
+	cfg                           *Config
+	log                           zerolog.Logger
+	debug, prettyLog, writeToFile bool
+	timeout                       time.Duration
+	format, logLevel              string
+	limit                         uint64
+	slash                         = string(os.PathSeparator)
 )
 
 func main() {
@@ -54,6 +55,14 @@ func newRootCMD() *cobra.Command {
 		Short: "domain-trust Client",
 		Long:  `Interact with the domain-trust API`,
 		PersistentPreRun: func(_ *cobra.Command, _ []string) {
+			logger, err := newLogger(logLevel)
+			if err != nil {
+				fmt.Printf("Unable to setup logger: %s: %v\n", logLevel, err)
+				os.Exit(1)
+			}
+
+			log = logger
+
 			configDir, err := os.UserHomeDir()
 			if err != nil {
 				log.Fatal().Err(err).Msg("unable to retrieve user's home directory")
@@ -74,7 +83,8 @@ func newRootCMD() *cobra.Command {
 	cmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "Enable console debugging")
 	cmd.PersistentFlags().StringVarP(&format, "format", "f", "yaml", "Set the output format for CLI commands (json, jsonp, yaml)")
 	cmd.PersistentFlags().Uint64VarP(&limit, "limit", "l", 0, "Limit the quantity of returned results")
-	cmd.PersistentFlags().Uint64VarP(&offset, "offset", "o", 0, "Offset the returned results by x results (pagination)")
+	cmd.PersistentFlags().StringVar(&logLevel, "logLevel", "info", "Set log level (debug, info, warn, error, fatal, panic)")
+	cmd.PersistentFlags().BoolVar(&prettyLog, "prettyLog", true, "Pretty print logs to console")
 	cmd.PersistentFlags().DurationVarP(&timeout, "timeout", "t", defaultTimeout, "Specify the API HTTP timeout")
 	cmd.PersistentFlags().BoolVarP(&writeToFile, "writetofile", "w", false, "Write the output to a file")
 
@@ -116,6 +126,27 @@ func marshal(data any) []byte {
 	}
 
 	return output
+}
+
+func newLogger(logLevel string) (zerolog.Logger, error) {
+	var logger zerolog.Logger
+
+	logLevelParsed, err := zerolog.ParseLevel(strings.ToLower(logLevel))
+	if err != nil {
+		return logger, fmt.Errorf("invalid log level %s", logLevel)
+	}
+
+	var logWriter io.Writer
+
+	if prettyLog {
+		logWriter = zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
+	} else {
+		logWriter = os.Stdout
+	}
+
+	logger = zerolog.New(logWriter).With().Timestamp().Logger().Level(logLevelParsed)
+
+	return logger, nil
 }
 
 func printToConsole(data any) {
