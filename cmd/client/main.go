@@ -40,6 +40,7 @@ func main() {
 	rootCMD.AddCommand(newDomainsCMD())
 	rootCMD.AddCommand(newInvitesCMD())
 	rootCMD.AddCommand(newLoginCMD())
+	rootCMD.AddCommand(newMetricsCMD())
 	rootCMD.AddCommand(newUserCMD())
 	rootCMD.AddCommand(newUsersCMD())
 	rootCMD.AddCommand(newVersionCMD())
@@ -169,7 +170,7 @@ func printToConsole(data any) {
 
 	marshalledData := marshal(data)
 
-	print(string(marshalledData)) //nolint:forbidigo
+	print(string(marshalledData)) //nolint:forbidigo // This intentionally avoids logging.
 }
 
 func printToFile(data any, file string) error {

@@ -79,7 +79,7 @@ func unmarshalFlags(cmd *cobra.Command, out interface{}) error {
 			}
 
 			val := flag.Value.String()
-			switch field.Kind() { //nolint:exhaustive
+			switch field.Kind() { //nolint:exhaustive // We don't support all flag types.
 			case reflect.String:
 				field.SetString(val)
 			case reflect.Bool:
