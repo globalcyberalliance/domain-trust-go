@@ -22,32 +22,30 @@ const (
 	OrganizationStatusDeactivated = "deactivated"
 )
 
-type (
-	Organization struct {
-		Created time.Time `json:"created,omitzero" yaml:"created,omitempty"`
-		ID      string    `json:"id,omitempty" yaml:"id,omitempty"`
+type Organization struct {
+	Created time.Time `json:"created,omitzero" yaml:"created,omitempty"`
+	ID      string    `json:"id,omitempty" yaml:"id,omitempty"`
 
-		Name      string `json:"name" yaml:"name"`
-		Rating    string `json:"rating" yaml:"rating"`
-		Role      string `json:"role" yaml:"role"`
-		Status    string `json:"status,omitempty" yaml:"status,omitempty"`
-		UserQuota int8   `json:"userQuota,omitempty" yaml:"userQuota,omitempty"`
-	}
+	Name      string `json:"name" yaml:"name"`
+	Rating    string `json:"rating" yaml:"rating"`
+	Role      string `json:"role" yaml:"role"`
+	Status    string `json:"status,omitempty" yaml:"status,omitempty"`
+	UserQuota int8   `json:"userQuota,omitempty" yaml:"userQuota,omitempty"`
+}
 
-	OrganizationFilter struct {
-		MetadataFilter
+type OrganizationFilter struct {
+	MetadataFilter
 
-		Name   string `json:"name" query:"name"`
-		Rating string `json:"rating" query:"rating"`
-		Role   string `json:"role" query:"role"`
-		Status string `json:"status" query:"status"`
-	}
+	Name   string `json:"name" query:"name"`
+	Rating string `json:"rating" query:"rating"`
+	Role   string `json:"role" query:"role"`
+	Status string `json:"status" query:"status"`
+}
 
-	OrganizationUpdate struct {
-		Name      *string `json:"name,omitempty"`
-		Rating    *string `json:"rating,omitempty"`
-		Role      *string `json:"role,omitempty"`
-		Status    *string `json:"status,omitempty"`
-		UserQuota *int8   `json:"userQuota,omitempty"`
-	}
-)
+type OrganizationUpdate struct {
+	Name      *string `json:"name,omitempty"`
+	Rating    *string `json:"rating,omitempty"`
+	Role      *string `json:"role,omitempty"`
+	Status    *string `json:"status,omitempty"`
+	UserQuota *int8   `json:"userQuota,omitempty"`
+}

@@ -14,7 +14,7 @@ const (
 	DefaultTimeout = 30 * time.Second
 	DocsURL        = "https://domain-trust.docs.globalcyberalliance.org"
 	EndpointURL    = "https://domain-trust.globalcyberalliance.org/api"
-	Version        = "2.0.51-go"
+	Version        = "2.0.54-go"
 )
 
 // Client represents the Domain Trust API client.

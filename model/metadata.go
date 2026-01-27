@@ -2,13 +2,12 @@
 package model
 
 const (
+	AbsoluteMaxLimit     = 999999999
 	DefaultMetadataLimit = 100
 	MaxMetadataLimit     = 10000
 )
 
-type (
-	// MetadataFilter represents a filter.
-	MetadataFilter struct {
-		Limit int `json:"limit,omitempty" query:"limit"`
-	}
-)
+// MetadataFilter represents a filter.
+type MetadataFilter struct {
+	Limit int `json:"limit,omitempty" query:"limit"`
+}
