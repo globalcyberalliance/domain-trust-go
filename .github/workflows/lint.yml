@@ -36,9 +36,12 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
+      # Both steps judge only the lines a PR changes, so a PR isn't failed for, or auto-fixed across, issues
+      # that predate it.
       - name: Run golangci-lint (no fail)
         uses: golangci/golangci-lint-action@v8
         with:
+          only-new-issues: true
           version: v2.5.0
           args: --fix --issues-exit-code=0 --output.text.path ignored.txt --timeout=5m
 
@@ -56,5 +59,6 @@ jobs:
       - name: Run golangci-lint (on fail)
         uses: golangci/golangci-lint-action@v8
         with:
+          only-new-issues: true
           version: v2.5.0
           args: --timeout=5m
